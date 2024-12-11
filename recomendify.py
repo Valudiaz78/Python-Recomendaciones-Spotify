@@ -69,13 +69,17 @@ def camino(grafo, origen, destino, usuario_canciones, playlist_canciones):
 
 
 
-def mas_importantes(grafo, n):
-    # Implementar la lógica para encontrar las canciones más importantes
-    pass
+def mas_importantes(grafo, n, pr):
+    canciones_importantes = sorted(pr.items(), key=lambda item: item[1], reverse=True)
+    top_canciones = [cancion for cancion, _ in canciones_importantes if cancion in grafo.obtener_vertices()][:n]
+    print("; ".join(top_canciones))
 
-def recomendacion(grafo, tipo, n, canciones):
-    # Implementar la lógica para recomendar usuarios o canciones
-    pass
+def recomendacion(grafo, tipo, n, lista_origen):
+    pr_personalizado = grafo_aux.pagerank_personalizado(grafo, tipo, n, lista_origen)
+    recomendaciones = sorted(pr_personalizado.items(), key=lambda item: item[1], reverse=True)
+    top_recomendaciones = [item for item, _ in recomendaciones if grafo.obtener_tipo_vertice(item) == "Cancion"][:n]
+    print("; ".join(top_recomendaciones))
+
 
 def ciclo(grafo, n, cancion):
     # Implementar la lógica para encontrar un ciclo de n canciones
@@ -122,7 +126,8 @@ def main():
     ruta_archivo = sys.argv[1]
     usuarios, canciones, usuario_canciones, playlist_canciones, usuario_playlists = cargar_datos(ruta_archivo)
     grafo_bipartito = construir_grafo(usuarios, canciones, usuario_canciones, playlist_canciones, usuario_playlists)
-    
+    pr = grafo_aux.pagerank(grafo_bipartito)
+
     # Leer comandos
     for linea in sys.stdin:
         partes = linea.strip().split(' ')
@@ -133,12 +138,12 @@ def main():
             camino(grafo_bipartito, origen, destino, playlist_canciones, usuario_playlists)
         elif comando == 'mas_importantes':
             n = int(partes[1])
-            mas_importantes(grafo_bipartito, n)
+            mas_importantes(grafo_bipartito, n, pr)
         elif comando == 'recomendacion':
             tipo = partes[1]
             n = int(partes[2])
-            canciones = ' '.join(partes[3:]).split(' >>>> ')
-            recomendacion(grafo_bipartito, tipo, n, canciones)
+            lista_origen = ' '.join(partes[3:]).split(' >>>> ')
+            recomendacion(grafo_bipartito, tipo, n, lista_origen)
         elif comando == 'ciclo':
             n = int(partes[1])
             cancion = ' '.join(partes[2:])

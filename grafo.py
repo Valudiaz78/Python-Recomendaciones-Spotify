@@ -28,6 +28,9 @@ class Grafo:
         self.grado_vertices[vertice1] += 1
         self.grado_vertices[vertice2] += 1
 
+    def obtener_vertices(self):
+        return self.grafo.keys()
+    
     def obtener_adyacentes(self, vertice):
         if vertice in self.grafo:
             return self.grafo[vertice]
@@ -43,6 +46,10 @@ class Grafo:
             return self.tipo[vertice]
         return None 
     
+    def obtener_grado_vertice(self, vertice):
+        if vertice in self.grafo:
+            return self.grado_vertices[vertice]
+        return None
 
     def __str__(self):
         return str(self.grafo)

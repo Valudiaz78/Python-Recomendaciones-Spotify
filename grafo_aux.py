@@ -1,3 +1,4 @@
+import random
 from collections import deque
 
 def bfs(grafo, origen, destino):
@@ -21,4 +22,27 @@ def bfs(grafo, origen, destino):
     
     return None
 
+def pagerank(grafo, iteraciones=100, d=0.85):
+    canciones = [v for v in grafo.obtener_vertices() if grafo.obtener_tipo_vertice(v) == "Cancion"]
+    dict_pr = {cancion: 1 for cancion in canciones}
+    for _ in range(iteraciones):
+        for cancion in canciones:
+            dict_pr[cancion] = ((1 - d)/len(canciones))+  d * sum([dict_pr[ady] / grafo.obtener_grado_vertice(ady) for ady in grafo.obtener_adyacentes(cancion) if ady in dict_pr])
+    
+    return dict_pr
+
+
+def pagerank_personalizado(grafo, tipo, n, lista_origen):
+    origen = random.choice(lista_origen)
+    valor_original = 1
+    pr_personalizado = {v: valor_original for v in grafo.obtener_vertices() if grafo.obtener_tipo_vertice(v) == tipo}
+    
+    for i in range(n*n):
+        adyacentes = grafo.obtener_adyacentes(origen)
+        ady = random.choice(list(adyacentes))
+        valor_original *= (1 / grafo.obtener_grado_vertice(origen))
+        pr_personalizado[ady] = valor_original
+        origen = ady
+    
+    return pr_personalizado
 
