@@ -13,20 +13,15 @@ class Grafo:
                 self.tipo[vertice] = tipo
 
     def agregar_arista(self, vertice1, vertice2, playlist=None):
-        if vertice1 not in self.grafo:
-            self.agregar_vertice(vertice1)
-        if vertice2 not in self.grafo:
-            self.agregar_vertice(vertice2)
-        
-        if vertice2 not in self.grafo[vertice1]:
-            self.grafo[vertice1][vertice2] = set()
-        if vertice1 not in self.grafo[vertice2]:
-            self.grafo[vertice2][vertice1] = set()
-        
+        self.grafo[vertice1] = self.grafo.get(vertice1, {})
+        self.grafo[vertice2] = self.grafo.get(vertice2, {})
+        self.grafo[vertice1][vertice2] = self.grafo[vertice1].get(vertice2, set())
+        self.grafo[vertice2][vertice1] = self.grafo[vertice2].get(vertice1, set())
         self.grafo[vertice1][vertice2].add(playlist) # Las playlists actuan como pesos
         self.grafo[vertice2][vertice1].add(playlist)
-        self.grado_vertices[vertice1] += 1
-        self.grado_vertices[vertice2] += 1
+
+        self.grado_vertices[vertice1] = self.grado_vertices.get(vertice1, 0) + 1
+        self.grado_vertices[vertice2] = self.grado_vertices.get(vertice2, 0) + 1
 
     def obtener_vertices(self):
         return self.grafo.keys()

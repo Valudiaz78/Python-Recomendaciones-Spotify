@@ -1,14 +1,9 @@
-#!/usr/bin/env python
-import cProfile
+#!/usr/bin/env python3
 import sys
 import csv
 import grafo_aux
 from grafo import Grafo
-import pstats
-import io
-import logging
-
-logging.basicConfig(level=logging.DEBUG)
+import time
 
 
 
@@ -38,7 +33,7 @@ def cargar_datos(ruta_archivo):
                 playlist_canciones[playlist] = set()
             playlist_canciones[playlist].add(cancion)
 
-            if playlist not in usuario_playlists:
+            if usuario not in usuario_playlists:
                 usuario_playlists[usuario] = set()
             usuario_playlists[usuario].add(playlist)
 
@@ -86,7 +81,6 @@ def recomendacion(grafo, tipo, n, lista_origen):
 
 
 def ciclo(grafo, n, cancion):
-    logging.debug(f"ciclo called with grafo={grafo}, n={n}, cancion={cancion}")
     visitados = set([cancion])
     camino = [cancion]
     resultado = grafo_aux.dfs(grafo, cancion, camino, visitados, n)
@@ -94,6 +88,9 @@ def ciclo(grafo, n, cancion):
         return " --> ".join(resultado)
     else:
         return "No se encontro recorrido."
+
+def imprimir_ciclo(resultado):
+    print(resultado)
 
 
 def rango(n, cancion):
@@ -116,18 +113,20 @@ def construir_grafo(usuarios, canciones, usuario_canciones, playlist_canciones, 
     
     return grafo_bipartito
 
-def construir_grafo_canciones(usuarios, usuario_canciones):
+def construir_grafo_canciones(playlist_canciones):
     grafo = Grafo()
-    for usuario in usuarios:
-        canciones = list(usuario_canciones[usuario])
-        n = len(canciones)
-        for i in range(n):
-            grafo.agregar_vertice(canciones[i])
-            for j in range(i + 1, n):
-                grafo.agregar_vertice(canciones[j])
-                grafo.agregar_arista(canciones[i], canciones[j])
+    for canciones in playlist_canciones.values():
+        for cancion in canciones:
+            if not grafo.pertenece(cancion):
+                grafo.agregar_vertice(cancion)
+            for cancion_adyacente in canciones:
+                if cancion == cancion_adyacente or grafo.estan_unidos(cancion, cancion_adyacente):
+                    continue
+                grafo.agregar_arista(cancion, cancion_adyacente)
 
     return grafo
+
+
 
 def main():
     if len(sys.argv) < 2:
@@ -158,10 +157,16 @@ def main():
         elif comando == 'ciclo':
             n = int(partes[1])
             cancion = ' '.join(partes[2:])
+            start_time = time.time()
             if grafo_ciclos_rango_creado == False:
-                grafo_ciclos_rango = construir_grafo_canciones(usuarios, usuario_canciones)
+                grafo_ciclos_rango = construir_grafo_canciones(playlist_canciones)
                 grafo_ciclos_rango_creado = True
-            ciclo(grafo_ciclos_rango, n, cancion)
+           
+            resultado = ciclo(grafo_ciclos_rango, n, cancion)
+            imprimir_ciclo(resultado)
+            end_time = time.time()
+            elapsed_time = end_time - start_time
+            print(f"Tiempo de ejecución: {elapsed_time} segundos")
         elif comando == 'rango':
             n = int(partes[1])
             cancion = ' '.join(partes[2:])
