@@ -27,15 +27,27 @@ def cargar_datos(ruta_archivo):
             if usuario not in usuario_canciones:
                 usuario_canciones[usuario] = set()
             usuario_canciones[usuario].add(cancion) 
+
             if playlist not in playlist_canciones:
                 playlist_canciones[playlist] = set()
             playlist_canciones[playlist].add(cancion)
+
             if playlist not in usuario_playlists:
                 usuario_playlists[usuario] = set()
             usuario_playlists[usuario].add(playlist)
 
     return usuarios, canciones, usuario_canciones, playlist_canciones, usuario_playlists
-    
+
+def camino(grafo, origen, destino, usuario_canciones, playlist_canciones):
+    if origen not in grafo.grafo or destino not in grafo.grafo:
+        print("Tanto el origen como el destino deben ser canciones")
+        return
+    camino_encontrado = grafo_aux.bfs(grafo, origen, destino)
+    if camino_encontrado:
+        imprimir_camino(grafo, camino_encontrado, usuario_canciones, playlist_canciones)
+    else:
+        print("No se encontró recorrido")
+
 def imprimir_camino(grafo, camino, playlist_canciones, usuario_playlists):
     resultado = []
     for i in range(len(camino)-1):
@@ -55,20 +67,6 @@ def imprimir_camino(grafo, camino, playlist_canciones, usuario_playlists):
     print(" ".join(resultado))
 
 
-
-def camino(grafo, origen, destino, usuario_canciones, playlist_canciones):
-    if origen not in grafo.grafo or destino not in grafo.grafo:
-        print("Tanto el origen como el destino deben ser canciones")
-        return
-    camino_encontrado = grafo_aux.bfs(grafo, origen, destino)
-    if camino_encontrado:
-        imprimir_camino(grafo, camino_encontrado, usuario_canciones, playlist_canciones)
-    else:
-        print("No se encontró recorrido")
-
-
-
-
 def mas_importantes(grafo, n, pr):
     canciones_importantes = sorted(pr.items(), key=lambda item: item[1], reverse=True)
     top_canciones = [cancion for cancion, _ in canciones_importantes if cancion in grafo.obtener_vertices()][:n]
@@ -82,10 +80,11 @@ def recomendacion(grafo, tipo, n, lista_origen):
 
 
 def ciclo(grafo, n, cancion):
+    
     # Implementar la lógica para encontrar un ciclo de n canciones
     pass
 
-def rango(grafo, n, cancion):
+def rango(n, cancion):
     # Implementar la lógica para encontrar todas las canciones en rango n
     pass
 
@@ -147,7 +146,8 @@ def main():
         elif comando == 'ciclo':
             n = int(partes[1])
             cancion = ' '.join(partes[2:])
-            ciclo(grafo_bipartito, n, cancion)
+            grafo = construir_grafo_canciones_usuario(canciones, usuario_canciones)
+            ciclo(grafo, n, cancion)
         elif comando == 'rango':
             n = int(partes[1])
             cancion = ' '.join(partes[2:])
