@@ -31,6 +31,12 @@ class Grafo:
     def obtener_vertices(self):
         return self.grafo.keys()
     
+    def pertenece(self, vertice):
+        return vertice in self.grafo
+    
+    def estan_unidos(self, vertice1, vertice2):
+        return vertice2 in self.grafo[vertice1]
+    
     def obtener_adyacentes(self, vertice):
         if vertice in self.grafo:
             return self.grafo[vertice]

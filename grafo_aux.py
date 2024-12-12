@@ -1,5 +1,10 @@
 import random
+import logging
 from collections import deque
+from grafo import Grafo
+
+logging.basicConfig(level=logging.DEBUG)
+
 
 def bfs(grafo, origen, destino):
     
@@ -46,4 +51,26 @@ def pagerank_personalizado(grafo, tipo, n, lista_origen):
     
     return pr_personalizado
 
+def dfs(grafo, origen, camino, visitados, n):
+    logging.debug(f"DFS called with origen={origen}, camino={camino}, visitados={visitados}")
+    if len(camino) == n:
+        if camino[0] in grafo.obtener_adyacentes(camino[-1]):
+            logging.debug(f"Cycle found: {camino + [camino[0]]}")
+            return camino + [camino[0]]
+        logging.debug("Reached length n but no cycle found")
+        return None
+    
+    for adyacente in grafo.obtener_adyacentes(origen):
+        if adyacente not in visitados:
+            visitados.add(adyacente)
+            camino.append(adyacente)
+            logging.debug(f"Visiting adyacente={adyacente}, updated camino={camino}")
+            resultado = dfs(grafo, adyacente, camino, visitados, n)
+            if resultado:
+                return resultado
+            camino.pop()
+            visitados.remove(adyacente)
+            logging.debug(f"Backtracking from adyacente={adyacente}, camino={camino}")
+    logging.debug(f"No more adyacentes to visit from origen={origen}")
+    return None
 
